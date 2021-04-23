@@ -1,0 +1,36 @@
+{
+  "name": "mazadk-back",
+  "version": "1.0.0",
+  "description": "mazad is an auction platform\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[C\u001b[Ck",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "server": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirSayed98/mazadk-back.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "MohamedSayed",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sirSayed98/mazadk-back/issues"
+  },
+  "homepage": "https://github.com/sirSayed98/mazadk-back#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "config": "^3.3.6",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.12.5",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7",
+    "slugify": "^1.5.0"
+  }
+}
