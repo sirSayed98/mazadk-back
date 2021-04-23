@@ -75,7 +75,7 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     // Create reset url
     const message = `${req.protocol}://${req.get(
       "host"
-    )}/api/v1/auth/resetPassword/${resetToken}`;
+    )}/resetPassword/${resetToken}`;
 
     await sendEmail({
       email: user.email,
