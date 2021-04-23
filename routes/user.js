@@ -5,11 +5,11 @@ const {
   createUser,
   updateUser,
   deleteUser,
-} = require("../controllers/users");
+} = require("../controllers/user");
 
-const User = require("../models/User");
 
-const router = express.Router({ mergeParams: true });
+
+const router = express.Router();
 
 const { protect, authorize } = require("../middleware/auth");
 
