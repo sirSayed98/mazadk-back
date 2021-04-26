@@ -14,7 +14,7 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // Load env vars
 dotenv.config({ path: "./config/.env" });

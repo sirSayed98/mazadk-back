@@ -22,8 +22,6 @@ exports.register = asyncHandler(async (req, res, next) => {
 
   //const url = `${req.protocol}://${req.get('host')}/profile`;
 
-  //await new Email(user, url).sendWelcome();
-
   sendTokenResponse(user, 200, req, res);
 });
 
@@ -177,10 +175,10 @@ const sendTokenResponse = (user, statusCode, req, res) => {
     httpOnly: true,
     secure: req.secure || req.headers["x-forwarded-proto"] === "https",
   };
-
+  user.token = token;
   res.status(statusCode).cookie("token", token, options).json({
     success: true,
     token,
+    user,
   });
 };
-
