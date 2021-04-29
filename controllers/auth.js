@@ -71,9 +71,7 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
 
   try {
     // Create reset url
-    const message = `${req.protocol}://${req.get(
-      "host"
-    )}/resetPassword/${resetToken}`;
+    const message = `https://https://mazadk.vercel.app/reset_password/${resetToken}`;
 
     await sendEmail({
       email: user.email,
