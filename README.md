@@ -54,7 +54,7 @@ npm install
 npm run server
 
 ```
-## Life API
+## Live API
 https://mmazadk.herokuapp.com
 
 
