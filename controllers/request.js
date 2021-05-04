@@ -83,7 +83,7 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
   else{
     const message=`Your request has been rejected you can communicate with the platform owner. `;
      await sendEmail({
-      email: data.email,
+      email: request.email,
       subject: "Rejected !",
       message,
     });
