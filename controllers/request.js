@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/async");
 const Request = require("../models/Request");
 const User = require("../models/User");
 const generator = require("generate-password");
+const sendEmail = require("./../utils/sendEmail");
 
 // @desc      Get all Requests
 // @route     GET /api/v1/requests
@@ -69,6 +70,23 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
       phone: request.phone,
     };
      await User.create(data);
+
+     const message=`Your request has been approved \n your email is: 
+     ${data.email} \n password: ${data.password} \n you can change it. `;
+     await sendEmail({
+      email: data.email,
+      subject: "Congratulations !",
+      message,
+    });
+
+  }
+  else{
+    const message=`Your request has been rejected you can communicate with the platform owner. `;
+     await sendEmail({
+      email: data.email,
+      subject: "Rejected !",
+      message,
+    });
   }
 
   
