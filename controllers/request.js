@@ -1,6 +1,8 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Request = require("../models/Request");
+const User = require("../models/User");
+const generator = require("generate-password");
 
 // @desc      Get all Requests
 // @route     GET /api/v1/requests
@@ -42,30 +44,36 @@ exports.createRequest = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/requests/:id
 // @access    Private/Admin
 exports.dealWithRequest = asyncHandler(async (req, res, next) => {
+
   const request = await Request.findById(req.params.id);
+  if (request.accepted===true){
+    return next(
+      new ErrorResponse(`request has been accepted before`, 400)
+    );
+  }
 
   request.accepted = req.body.accepted;
 
   await request.save();
-  console.log(req.body);
-  console.log(request);
 
+  if (req.body.accepted == true) {
+    var password = generator.generate({
+      length: 10,
+      numbers: true,
+    });
+    const data = {
+      name: request.companyName,
+      email: request.email,
+      role: "merchant",
+      password: password,
+      phone: request.phone,
+    };
+     await User.create(data);
+  }
+
+  
   res.status(200).json({
     success: true,
-    data: request,
+    data: request
   });
 });
-
-/*
-const user = await User.findById(req.user.id).select('+password');
-
-    // Check current password
-    if (!(await user.matchPassword(req.body.currentPassword))) {
-        return next(new ErrorResponse('Password is incorrect', 401));
-    }
-
-    user.password = req.body.newPassword;
-    await user.save();
-
-
-*/
