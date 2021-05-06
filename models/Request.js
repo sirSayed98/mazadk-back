@@ -17,7 +17,6 @@ const RequestSchema = new mongoose.Schema({
   describtion: {
     type: String,
     maxlength: [200, "Please add describtion for company"],
-    unique: true,
   },
   phone: {
     type: String,
