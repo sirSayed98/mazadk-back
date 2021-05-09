@@ -24,7 +24,11 @@ const RequestSchema = new mongoose.Schema({
     unique: true,
   },
   accepted: {
-    type: Boolean
+    type: Boolean,
+  },
+  checked: {
+    type: Boolean,
+    default: false,
   },
   createdAt: {
     type: Date,

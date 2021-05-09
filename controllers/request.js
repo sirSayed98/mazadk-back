@@ -47,13 +47,14 @@ exports.createRequest = asyncHandler(async (req, res, next) => {
 exports.dealWithRequest = asyncHandler(async (req, res, next) => {
 
   const request = await Request.findById(req.params.id);
-  if (request.accepted===true){
+  if (request.checked===true){
     return next(
       new ErrorResponse(`request has been accepted before`, 400)
     );
   }
 
   request.accepted = req.body.accepted;
+  request.checked = true;
 
   await request.save();
 
@@ -93,5 +94,16 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: request
+  });
+});
+
+// @desc      Delete Request
+// @route     DELETE /api/v1/request/:id
+// @access    Private/Admin
+exports.deleteRequest = asyncHandler(async (req, res, next) => {
+  await Request.findByIdAndDelete(req.params.id);
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
