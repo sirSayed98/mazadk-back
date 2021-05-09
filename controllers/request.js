@@ -79,6 +79,10 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
       subject: "Congratulations !",
       message,
     });
+    res.status(200).json({
+      success: true,
+      data: request
+    });
 
   }
   else{
@@ -88,13 +92,14 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
       subject: "Rejected !",
       message,
     });
+    res.status(200).json({
+      success: true,
+      data: request
+    });
   }
 
   
-  res.status(200).json({
-    success: true,
-    data: request
-  });
+ 
 });
 
 // @desc      Delete Request
