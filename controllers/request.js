@@ -75,7 +75,7 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
      const message=`Your request has been approved \n your email is: 
      ${data.email} \n password: ${data.password} \n you can change it. `;
      await sendEmail({
-      email: data.email,
+      email: request.email,
       subject: "Congratulations !",
       message,
     });
