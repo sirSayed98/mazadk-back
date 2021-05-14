@@ -1,6 +1,7 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const User = require("../models/User");
+const sendEmail = require("../utils/sendEmail");
 
 // @desc      Get all users
 // @route     GET /api/v1/users
@@ -36,11 +37,25 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 exports.createUser = asyncHandler(async (req, res, next) => {
   const user = await User.create(req.body);
 
+  try {
+	  await sendEmail({
+		email: user.email,
+		subject: "Email Verfication",
+		message:
+		  "Please Click on the following link to verify your account\n\n " +
+		  `https://mazadk.vercel.app/api/v1/auth/verifyuser/${user.id}`,
+	  });
+  } catch (err) {
+	console.log(err);
+	return next(new ErrorResponse("Email could not be sent", 500));
+  }
+
   res.status(201).json({
     success: true,
     data: user,
   });
 });
+
 
 // @desc      Delete user
 // @route     DELETE /api/v1/users/:id

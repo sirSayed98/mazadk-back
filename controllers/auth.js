@@ -180,3 +180,19 @@ const sendTokenResponse = (user, statusCode, req, res) => {
     user,
   });
 };
+
+//@desc 	  Verify user
+//@route 	  Put  	/api/v1/verifyuser/:id
+//@access	  Public
+exports.verifyUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findOneAndUpdate(
+    { _id: req.params.id },
+    { verified: true },
+    {
+      new: true,
+      runvalidators: false,
+    }
+  );
+
+  res.status(200).json({ success: true, data: {} });
+});
