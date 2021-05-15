@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/async");
 const User = require("../models/User");
 const crypto = require("crypto");
 const sendEmail = require("./../utils/sendEmail");
+const jwt = require("jsonwebtoken");
 
 //@desc       Register User
 //@route      GET/api/v1/auth/register
@@ -182,11 +183,12 @@ const sendTokenResponse = (user, statusCode, req, res) => {
 };
 
 //@desc 	  Verify user
-//@route 	  Put  	/api/v1/verifyuser/:id
+//@route 	  Put  	/api/v1/verifyuser/:token
 //@access	  Public
 exports.verifyUser = asyncHandler(async (req, res, next) => {
+  const decoded = jwt.verify(req.params.token, process.env.JWT_SECRET);
   const user = await User.findOneAndUpdate(
-    { _id: req.params.id },
+    { _id: decoded.id },
     { verified: true },
     {
       new: true,
