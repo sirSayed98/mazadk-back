@@ -66,10 +66,13 @@ app.use(cors());
 const Users = require("./routes/user");
 const Auth = require("./routes/auth");
 const Requests = require("./routes/requests");
+const statist = require("./routes/statist")
+
 //mount routes
 app.use("/api/v1/users", Users);
 app.use("/api/v1/auth", Auth);
 app.use("/api/v1/requests", Requests);
+app.use("/api/v1/statist", statist);
 
 
 

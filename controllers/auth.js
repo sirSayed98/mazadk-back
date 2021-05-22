@@ -158,12 +158,8 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
   user.phone = req.body.phone;
 
   if (req.body.password) {
-    console.log("change password");
     user.password = req.body.password;
   }
-  console.log("_________");
-  console.log(user);
-  console.log("_________");
 
   await user.save();
   res.status(200).json({
