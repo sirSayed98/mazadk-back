@@ -147,6 +147,31 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc      Update ME
+// @route     PUT /api/v1/auth/
+// @access    Private
+exports.updateMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  user.name = req.body.name;
+  user.address = req.body.address;
+  user.phone = req.body.phone;
+
+  if (req.body.password) {
+    console.log("change password");
+    user.password = req.body.password;
+  }
+  console.log("_________");
+  console.log(user);
+  console.log("_________");
+
+  await user.save();
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 // @desc      Log user out / clear cookie
 // @route     GET /api/v1/auth/logout
 // @access    Public

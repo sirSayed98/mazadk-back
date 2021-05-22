@@ -7,11 +7,14 @@ const {
   forgetPassword,
   resetPassword,
   updatePassword,
+  updateMe
 } = require("../controllers/auth");
 
 const router = express.Router();
 
 const { protect } = require("../middleware/auth");
+
+router.put('/updateMe',protect,updateMe);
 
 router.post("/register", register);
 router.post("/login", login);
