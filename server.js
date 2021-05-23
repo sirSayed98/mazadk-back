@@ -5,20 +5,23 @@ const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/error");
 const connectDB = require("./config/db");
 
-
 //security
-const mongoSanitize = require('express-mongo-sanitize');
-const helmet = require('helmet');
-const xss = require('xss-clean');
-const rateLimit = require('express-rate-limit');
-const hpp = require('hpp');
-const cors = require('cors');
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const cors = require("cors");
+
+// fileUpload
+const fileupload = require("express-fileupload");
 
 const PORT = process.env.PORT || 4000;
 
+
+
 // Load env vars
 dotenv.config({ path: "./config/.env" });
-
 
 const app = express();
 
@@ -61,12 +64,12 @@ app.use(cors());
 
 //"___________________________________________END___SECURITY_____________________________"//
 
-
 // load Routers
 const Users = require("./routes/user");
 const Auth = require("./routes/auth");
 const Requests = require("./routes/requests");
-const statist = require("./routes/statist")
+const statist = require("./routes/statist");
+const uploadRoutes = require("./routes/uploadPhoto");
 
 //mount routes
 app.use("/api/v1/users", Users);
@@ -75,6 +78,11 @@ app.use("/api/v1/requests", Requests);
 app.use("/api/v1/statist", statist);
 
 
+// file upload
+app.use(fileupload());
+//image upload image
+app.use("/api/v1/upload", uploadRoutes);
+app.use(express.static("./public"));
 
 // errorHandler
 app.use(errorHandler);
