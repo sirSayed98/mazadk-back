@@ -18,8 +18,6 @@ const fileupload = require("express-fileupload");
 
 const PORT = process.env.PORT || 4000;
 
-
-
 // Load env vars
 dotenv.config({ path: "./config/.env" });
 
@@ -68,15 +66,16 @@ app.use(cors());
 const Users = require("./routes/user");
 const Auth = require("./routes/auth");
 const Requests = require("./routes/requests");
+const Mazads = require("./routes/mazad");
 const statist = require("./routes/statist");
 const uploadRoutes = require("./routes/uploadPhoto");
 
 //mount routes
 app.use("/api/v1/users", Users);
 app.use("/api/v1/auth", Auth);
+app.use("/api/v1/mazads", Mazads);
 app.use("/api/v1/requests", Requests);
 app.use("/api/v1/statist", statist);
-
 
 // file upload
 app.use(fileupload());
