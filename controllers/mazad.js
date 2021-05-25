@@ -21,11 +21,11 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads/:id
 // @access    public
 exports.getMazad = asyncHandler(async (req, res, next) => {
-  const Mazad = await Mazad.findById(req.params.id);
+  const mazad = await Mazad.findById(req.params.id);
 
   res.status(200).json({
     success: true,
-    data: Mazad,
+    data: mazad,
   });
 });
 
@@ -33,10 +33,11 @@ exports.getMazad = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads
 // @access    private [admin-merchant]
 exports.createMazad = asyncHandler(async (req, res, next) => {
-  const Mazad = await Mazad.create(req.body);
+  console.log("____________");
+  const mazad = await Mazad.create(req.body);
   res.status(201).json({
     success: true,
-    data: Mazad,
+    data: mazad,
   });
 });
 
@@ -44,9 +45,9 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/v1/Mazad/:id
 // @access    private [admin-merchant]
 exports.deleteMazad = asyncHandler(async (req, res, next) => {
-  const Mazad = await Mazad.find({ merchant: req.user._id });
+  const mazad = await Mazad.find({ merchant: req.user._id });
 
-  if (req.user._id !== Mazad.merchant) {
+  if (req.use.role == "merchant" && req.user._id !== mazad.merchant) {
     return next(
       new ErrorResponse(`This mazad for another merchant not you`, 400)
     );
@@ -55,5 +56,28 @@ exports.deleteMazad = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: {},
+  });
+});
+
+// @desc      Delete Mazad
+// @route     DELETE /api/v1/Mazad/:id
+// @access    private [admin-merchant]
+exports.updateMazad = asyncHandler(async (req, res, next) => {
+  let mazad = await Mazad.find({ merchant: req.user._id });
+
+  if (req.use.role == "merchant" && req.user._id !== mazad.merchant) {
+    return next(
+      new ErrorResponse(`This mazad for another merchant not you`, 400)
+    );
+  }
+
+  mazad = await Mazad.findOneAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: mazad,
   });
 });

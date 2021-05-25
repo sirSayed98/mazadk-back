@@ -20,7 +20,7 @@ const MazadSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    expected_peice: {
+    expected_price: {
       type: Number,
       required: true,
     },
@@ -60,6 +60,10 @@ const MazadSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    photo:{
+        type: String,
+        default: "/uploads/mazad/default.png",
+    }
   },
   {
     toJSON: { virtuals: true },

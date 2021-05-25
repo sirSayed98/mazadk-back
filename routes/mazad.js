@@ -4,6 +4,7 @@ const {
   getMazad,
   createMazad,
   deleteMazad,
+  updateMazad,
 } = require("../controllers/mazad");
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.route("/").get(protect, authorize("admin", "merchant"), getMazads);
 
 router
   .route("/:id")
+  .put(authorize("admin", "merchant"), updateMazad)
   .get(getMazad)
   .delete(authorize("admin", "merchant"), deleteMazad);
 
