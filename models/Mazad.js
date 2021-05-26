@@ -27,6 +27,10 @@ const MazadSchema = new mongoose.Schema(
     current_price: {
       type: Number,
     },
+    increased_value: {
+      type: Number,
+      required: true,
+    },
     start_time: {
       type: Date,
       required: true,
@@ -60,10 +64,10 @@ const MazadSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    photo:{
-        type: String,
-        default: "/uploads/mazad/default.png",
-    }
+    photo: {
+      type: String,
+      default: "/uploads/mazad/default.png",
+    },
   },
   {
     toJSON: { virtuals: true },
