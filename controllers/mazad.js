@@ -7,11 +7,24 @@ const User = require("../models/User");
 // @route     GET /api/v1/mazads
 // @access    Private/[merchant-admins]
 exports.getMazads = asyncHandler(async (req, res, next) => {
-  const Mazads =
-    req.user.role === "admin"
-      ? await Mazad.find()
-      : await Mazad.find({ merchant: req.user._id });
-
+  let Mazads;
+  if (req.query.next && req.query.next == 1) {
+	  // Future mazads
+	  console.log(req.query.next)
+    Mazads =
+      req.user.role === "admin"
+        ? await Mazad.find({ start_time: { $gte: Date.now() } })
+        : await Mazad.find({
+            merchant: req.user._id,
+            start_time: { $gte: Date.now() },
+          });
+  } else {
+    // All mazads
+    Mazads =
+      req.user.role === "admin"
+        ? await Mazad.find()
+        : await Mazad.find({ merchant: req.user._id });
+  }
   res.status(200).json({
     success: true,
     data: Mazads,
