@@ -23,8 +23,8 @@ router.route("/bid/:id").post(protect, authorize("user", "admin"), bidNow);
 
 router
   .route("/:id")
-  .put(authorize("admin", "merchant"), updateMazad)
+  .put(protect, authorize("admin", "merchant"), updateMazad)
   .get(getMazad)
-  .delete(authorize("admin", "merchant"), deleteMazad);
+  .delete(protect, authorize("admin", "merchant"), deleteMazad);
 
 module.exports = router;
