@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("../models/User");
+const Mazad = require("../models/Mazad");
 const ErrorResponse = require("../utils/errorResponse");
 const router = express.Router();
 
@@ -43,21 +44,26 @@ router.use(protect);
 router.post("/user", async (req, res) => {
   const ret = construct(req, "user");
   const user = await User.findById(req.user.id);
-  
+
   user.photo = ret;
 
   await user.save();
-  
+
   res.status(200).json({
     success: true,
     data: user,
   });
-
 });
-router.post("/mazad", (req, res) => {
+router.post("/mazad", async (req, res) => {
   const ret = construct(req, "mazad");
+  const mazad = await Mazad.findById(req.body.id);
+  mazad.photo = ret;
+  await mazad.save();
 
-  res.status(200).json(ret);
+  res.status(200).json({
+    success: true,
+    data: mazad,
+  });
 });
 
 module.exports = router;
