@@ -1,7 +1,7 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Mazad = require("../models/Mazad");
-
+const User = require("../models/User");
 
 // @desc      Get all Mazads
 // @route     GET /api/v1/mazads
@@ -89,22 +89,24 @@ exports.updateMazad = asyncHandler(async (req, res, next) => {
 // @route     Post /api/v1/Mazad/join/:id
 // @access    Private [user - admin]
 exports.joinMazad = asyncHandler(async (req, res, next) => {
-	let mazad = await Mazad.findOne({ _id: req.params.id });
-	if (!mazad) {
-		return next(new ErrorResponse("This mazad doesn't exist.", 404));
-	}
+  let mazad = await Mazad.findOne({ _id: req.params.id });
+  if (!mazad) {
+    return next(new ErrorResponse("This mazad doesn't exist.", 404));
+  }
 
-	if (mazad.end_time < Date.now()) {
-	  return next(
-		new ErrorResponse(`This mazad has already ended`, 400)
-	  );
-	}
-  
-	mazad.subscribers.push(req.user._id);
-	await mazad.save();
+  if (mazad.end_time < Date.now()) {
+    return next(new ErrorResponse(`This mazad has already ended`, 400));
+  }
 
-	res.status(200).json({
-	  success: true,
-	  data: mazad,
-	});
+  let user = await User.findById(req.user.id);
+  user.myMazads.push(mazad._id);
+  await user.save();
+
+  mazad.subscribers.push(user._id);
+  await mazad.save();
+
+  res.status(200).json({
+    success: true,
+    data: mazad,
   });
+});

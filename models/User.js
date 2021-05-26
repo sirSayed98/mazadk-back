@@ -37,8 +37,8 @@ const UserSchema = new mongoose.Schema({
     maxlength: [11, "Phone number can not be longer than 11 characters"],
     unique: true,
   },
-  prevMazad: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
-  wonMazad: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
+  myMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
+  wonMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
   photo: {
     type: String,
     default: "/uploads/user/default.png",
