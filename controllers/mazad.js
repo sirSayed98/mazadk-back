@@ -9,8 +9,8 @@ const User = require("../models/User");
 exports.getMazads = asyncHandler(async (req, res, next) => {
   let Mazads;
   if (req.query.next && req.query.next == 1) {
-	  // Future mazads
-	  console.log(req.query.next)
+    // Future mazads
+    console.log(req.query.next);
     Mazads =
       req.user.role === "admin"
         ? await Mazad.find({ start_time: { $gte: Date.now() } })
@@ -47,7 +47,6 @@ exports.getMazad = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads
 // @access    private [admin-merchant]
 exports.createMazad = asyncHandler(async (req, res, next) => {
-  console.log("____________");
   const { start_price } = req.body;
   req.body.current_price = start_price;
   const mazad = await Mazad.create(req.body);
@@ -79,19 +78,38 @@ exports.deleteMazad = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/Mazad/:id
 // @access    private [admin-merchant]
 exports.updateMazad = asyncHandler(async (req, res, next) => {
-  let mazad = await Mazad.find({ merchant: req.user._id });
+  let mazad = await Mazad.findById(req.params.id);
 
-  if (req.use.role == "merchant" && req.user._id !== mazad.merchant) {
+  if (
+    req.user.role == "merchant" &&
+    req.user._id.toString() !== mazad.merchant.toString()
+  ) {
     return next(
       new ErrorResponse(`This mazad for another merchant not you`, 400)
     );
   }
 
-  mazad = await Mazad.findOneAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const {
+    name,
+    describtion,
+    start_price,
+    market_price,
+    expected_price,
+    increased_value,
+    start_time,
+    end_time,
+  } = req.body;
 
+  mazad.name = name;
+  mazad.describtion = describtion;
+  mazad.start_price = start_price;
+  mazad.market_price = market_price;
+  mazad.expected_price = expected_price;
+  mazad.increased_value = increased_value;
+  mazad.start_time = start_time;
+  mazad.end_time = end_time;
+
+  await mazad.save();
   res.status(200).json({
     success: true,
     data: mazad,
