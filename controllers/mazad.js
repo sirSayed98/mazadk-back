@@ -89,7 +89,7 @@ exports.updateMazad = asyncHandler(async (req, res, next) => {
 // @route     Post /api/v1/Mazad/join/:id
 // @access    Private [user - admin]
 exports.joinMazad = asyncHandler(async (req, res, next) => {
-  let mazad = await Mazad.findOne({ _id: req.params.id });
+  let mazad = await Mazad.findById(req.params.id);
   if (!mazad) {
     return next(new ErrorResponse("This mazad doesn't exist.", 404));
   }
@@ -103,6 +103,35 @@ exports.joinMazad = asyncHandler(async (req, res, next) => {
   await user.save();
 
   mazad.subscribers.push(user._id);
+  await mazad.save();
+
+  res.status(200).json({
+    success: true,
+    data: mazad,
+  });
+});
+
+// @desc      Bid end point
+// @route     Post /api/v1/Mazad/bid/:id
+// @access    Private [user - admin]
+exports.bidNow = asyncHandler(async (req, res, next) => {
+  let mazad = await Mazad.findById(req.params.id);
+  if (!mazad) {
+    return next(new ErrorResponse("This mazad doesn't exist.", 404));
+  }
+
+  if (!mazad.subscribers.find((id) => id == req.user.id)) {
+    return next(new ErrorResponse("you are not subcribed to this mazad."));
+  }
+
+  if (!(mazad.start_time < Date.now() && mazad.end_time > Date.now())) {
+    return next(
+      new ErrorResponse(`This mazad is not available currently`, 400)
+    );
+  }
+
+  const { added_value } = req.body;
+  mazad.current_price += added_value;
   await mazad.save();
 
   res.status(200).json({
