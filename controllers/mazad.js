@@ -2,10 +2,11 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const Mazad = require("../models/Mazad");
 const User = require("../models/User");
+const TimeNow = require("../utils/GetCurrentTime");
 
 // @desc      Get all Mazads
 // @route     GET /api/v1/mazads
-// @access    Private/[merchant-admins]
+// @access    public
 exports.getMazads = asyncHandler(async (req, res, next) => {
   let Mazads;
   if (req.query.next && req.query.next == 1) {
@@ -31,18 +32,32 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc      Get current mazads
+// @route     GET /api/v1/mazads
+// @access    Puplic
+exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
+  let currentTime = TimeNow();
+  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+
+  let filtered = mazads.filter((el) => {
+    return el.finished === false;
+  });
+  res.status(200).json({
+    success: true,
+    data: filtered,
+  });
+});
+
 // @desc      Get not subscribed mazads for user
 // @route     GET /api/v1/mazads
 // @access    Private
 exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
-  let mazads = await Mazad.find();
+  let currentTime = TimeNow();
+  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
 
-  console.log("_________");
-  console.log(mazads.length);
   let filteredMazads = mazads.filter((el) => {
     return req.user.myMazads.includes(el._id.toString()) === false;
   });
-  console.log(filteredMazads.length);
   res.status(200).json({
     success: true,
     data: filteredMazads,

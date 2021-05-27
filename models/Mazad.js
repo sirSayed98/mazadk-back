@@ -68,6 +68,10 @@ const MazadSchema = new mongoose.Schema(
       type: String,
       default: "/uploads/mazad/default.png",
     },
+    finished: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
