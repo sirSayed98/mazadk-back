@@ -31,6 +31,23 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc      Get not subscribed mazads for user
+// @route     GET /api/v1/mazads
+// @access    Private
+exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
+  let mazads = await Mazad.find();
+
+  console.log("_________");
+  console.log(mazads.length);
+  let filteredMazads = mazads.filter((el) => {
+    return req.user.myMazads.includes(el._id.toString()) === false;
+  });
+  console.log(filteredMazads.length);
+  res.status(200).json({
+    success: true,
+    data: filteredMazads,
+  });
+});
 // @desc      Get single mazad
 // @route     GET /api/v1/mazads/:id
 // @access    public
