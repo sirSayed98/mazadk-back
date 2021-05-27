@@ -14,10 +14,10 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
     console.log(req.query.next);
     Mazads =
       req.user.role === "admin"
-        ? await Mazad.find({ start_time: { $gte: Date.now() } })
+        ? await Mazad.find({ start_time: { $gte: currentTime } })
         : await Mazad.find({
             merchant: req.user._id,
-            start_time: { $gte: Date.now() },
+            start_time: { $gte: currentTime },
           });
   } else {
     // All mazads
@@ -56,7 +56,10 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
   let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
 
   let filteredMazads = mazads.filter((el) => {
-    return req.user.myMazads.includes(el._id.toString()) === false;
+    return (
+      req.user.myMazads.includes(el._id.toString()) === false &&
+      el.finished === false
+    );
   });
   res.status(200).json({
     success: true,
@@ -152,12 +155,14 @@ exports.updateMazad = asyncHandler(async (req, res, next) => {
 // @route     Post /api/v1/Mazad/join/:id
 // @access    Private [user - admin]
 exports.joinMazad = asyncHandler(async (req, res, next) => {
+  let currentTime = TimeNow();
+
   let mazad = await Mazad.findById(req.params.id);
   if (!mazad) {
     return next(new ErrorResponse("This mazad doesn't exist.", 404));
   }
 
-  if (mazad.end_time < Date.now()) {
+  if (mazad.end_time < currentTime) {
     return next(new ErrorResponse(`This mazad has already ended`, 400));
   }
 
@@ -178,6 +183,8 @@ exports.joinMazad = asyncHandler(async (req, res, next) => {
 // @route     Post /api/v1/Mazad/bid/:id
 // @access    Private [user - admin]
 exports.bidNow = asyncHandler(async (req, res, next) => {
+  let currentTime = TimeNow();
+
   let mazad = await Mazad.findById(req.params.id);
   if (!mazad) {
     return next(new ErrorResponse("This mazad doesn't exist.", 404));
@@ -187,7 +194,7 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("you are not subcribed to this mazad."));
   }
 
-  if (!(mazad.start_time < Date.now() && mazad.end_time > Date.now())) {
+  if (!(mazad.start_time < currentTime && mazad.end_time > currentTime)) {
     return next(
       new ErrorResponse(`This mazad is not available currently`, 400)
     );
