@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/async");
 const Mazad = require("../models/Mazad");
 const User = require("../models/User");
 const TimeNow = require("../utils/GetCurrentTime");
+const schedule = require("node-schedule");
 
 // @desc      Get all Mazads
 // @route     GET /api/v1/mazads
@@ -82,9 +83,15 @@ exports.getMazad = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads
 // @access    private [admin-merchant]
 exports.createMazad = asyncHandler(async (req, res, next) => {
-  const { start_price } = req.body;
+  const { start_price, end_time } = req.body;
   req.body.current_price = start_price;
   const mazad = await Mazad.create(req.body);
+
+  schedule.scheduleJob(end_time, async function () {
+    mazad.finished = true;
+    await mazad.save();
+  });
+
   res.status(201).json({
     success: true,
     data: mazad,
@@ -146,6 +153,11 @@ exports.updateMazad = asyncHandler(async (req, res, next) => {
   mazad.increased_value = increased_value;
   mazad.start_time = start_time;
   mazad.end_time = end_time;
+
+  schedule.scheduleJob(end_time, async function () {
+    mazad.finished = true;
+    await mazad.save();
+  });
 
   await mazad.save();
   res.status(200).json({
