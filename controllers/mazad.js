@@ -97,7 +97,10 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
 exports.deleteMazad = asyncHandler(async (req, res, next) => {
   const mazad = await Mazad.find({ merchant: req.user._id });
 
-  if (req.use.role == "merchant" && req.user._id !== mazad.merchant) {
+  if (
+    req.use.role == "merchant" &&
+    req.user._id.toString() !== mazad.merchant.toString()
+  ) {
     return next(
       new ErrorResponse(`This mazad for another merchant not you`, 400)
     );
