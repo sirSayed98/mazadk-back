@@ -38,7 +38,9 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
 // @access    Puplic
 exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+  let mazads = await Mazad.find({
+    start_time: { $lte: currentTime },
+  });
 
   let filtered = mazads.filter((el) => {
     return el.finished === false;
@@ -54,7 +56,7 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+  let mazads = await Mazad.find({ start_time: { $lte: currentTime } });
 
   let filteredMazads = mazads.filter((el) => {
     return (
@@ -62,11 +64,46 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
       el.finished === false
     );
   });
+
   res.status(200).json({
     success: true,
     data: filteredMazads,
   });
 });
+
+// @desc      Get not subscribed mazads for user
+// @route     GET /api/v1/mazads
+// @access    public
+exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
+  let currentTime = TimeNow();
+  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+
+  res.status(200).json({
+    success: true,
+    data: mazads,
+  });
+});
+
+// @desc      Get not subscribed mazads for user
+// @route     GET /api/v1/mazads
+// @access    Private
+exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
+  let currentTime = TimeNow();
+  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+
+  let filteredMazads = mazads.filter((el) => {
+    return (
+      req.user.interested_mazads.includes(el._id.toString()) === false &&
+      el.finished === false
+    );
+  });
+
+  res.status(200).json({
+    success: true,
+    data: filteredMazads,
+  });
+});
+
 // @desc      Get single mazad
 // @route     GET /api/v1/mazads/:id
 // @access    public
@@ -217,6 +254,7 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
 
   const { added_value } = req.body;
   mazad.current_price += added_value;
+  mazad.higher_bidder = req.user.id;
   await mazad.save();
 
   res.status(200).json({

@@ -39,6 +39,7 @@ const UserSchema = new mongoose.Schema({
   },
   myMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
   wonMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
+  interested_mazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
   photo: {
     type: String,
     default: "/uploads/user/default.png",

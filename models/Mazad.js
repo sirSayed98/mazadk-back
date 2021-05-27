@@ -60,6 +60,10 @@ const MazadSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
+    higher_bidder: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
     createdAt: {
       type: Date,
       default: Date.now,

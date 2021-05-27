@@ -9,6 +9,8 @@ const {
   bidNow,
   getCurrentMazadsByUser,
   getCurrentMazads,
+  getUpComingMazads,
+  getUpComingMazadsByUser,
 } = require("../controllers/mazad");
 
 const router = express.Router();
@@ -23,11 +25,12 @@ router.route("/join/:id").post(protect, authorize("user", "admin"), joinMazad);
 
 router.route("/bid/:id").post(protect, authorize("user", "admin"), bidNow);
 
-router
-  .route("/current_mazads_user")
-  .get(protect, getCurrentMazadsByUser);
-
+router.route("/current_mazads_user").get(protect, getCurrentMazadsByUser);
 router.route("/current_mazads").get(getCurrentMazads);
+
+router.route("/current_mazads_user").get(protect, getUpComingMazadsByUser);
+router.route("/upcoming_mazads").get(getUpComingMazads);
+
 router
   .route("/:id")
   .put(protect, authorize("admin", "merchant"), updateMazad)
