@@ -28,7 +28,7 @@ router.route("/bid/:id").post(protect, authorize("user", "admin"), bidNow);
 router.route("/current_mazads_user").get(protect, getCurrentMazadsByUser);
 router.route("/current_mazads").get(getCurrentMazads);
 
-router.route("/current_mazads_user").get(protect, getUpComingMazadsByUser);
+router.route("/upcoming_mazads_user").get(protect, getUpComingMazadsByUser);
 router.route("/upcoming_mazads").get(getUpComingMazads);
 
 router
