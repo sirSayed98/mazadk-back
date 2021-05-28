@@ -252,13 +252,20 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const { added_value } = req.body;
-  mazad.current_price += added_value;
-  mazad.higher_bidder = req.user.id;
-  await mazad.save();
+  const { newVal } = req.body;
 
-  res.status(200).json({
-    success: true,
-    data: mazad,
-  });
+  if (mazad.current_price < newVal) {
+    mazad.current_price = newVal;
+    mazad.higher_bidder = req.user.id;
+    await mazad.save();
+    res.status(200).json({
+      success: true,
+      data: mazad,
+    });
+  } else {
+    res.status(406).json({
+      success: false,
+      Message: "there is a new value to bid",
+    });
+  }
 });
