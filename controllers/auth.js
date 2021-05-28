@@ -139,7 +139,19 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/auth/me
 // @access    Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id)
+    .populate(
+      "myMazads",
+      "name start_time end_time start_price market_price expected_price current_price"
+    )
+    .populate(
+      "wonMazads",
+      "name start_time end_time start_price market_price expected_price current_price"
+    )
+    .populate(
+      "interested_mazads",
+      "name start_time end_time start_price market_price expected_price current_price"
+    );
 
   res.status(200).json({
     success: true,

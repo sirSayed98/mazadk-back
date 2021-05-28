@@ -119,11 +119,8 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
 // @access    public
 exports.getMazad = asyncHandler(async (req, res, next) => {
   const mazad = await Mazad.findById(req.params.id)
-    .populate("interested_subscribers")
-    .populate("subscribers")
-    .populate("merchant")
-    .populate("winner")
-    .populate("higher_bidder");
+    .populate("interested_subscribers", "name photo")
+    .populate("subscribers", "name photo")
 
   res.status(200).json({
     success: true,
