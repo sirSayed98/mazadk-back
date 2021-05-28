@@ -219,6 +219,11 @@ exports.joinMazad = asyncHandler(async (req, res, next) => {
   }
 
   let user = await User.findById(req.user.id);
+  if (user.myMazads.find(id => id == mazad._id)) {
+	  return next(new ErrorResponse('You are already subscribed to this mazad', 400));
+  }
+
+
   user.myMazads.push(mazad._id);
   await user.save();
 
