@@ -27,6 +27,16 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
         ? await Mazad.find()
         : await Mazad.find({ merchant: req.user._id });
   }
+
+  opts = [
+    { path: "interested_subscribers" },
+    { path: "subscribers" },
+    { path: "winner" },
+    { path: "merchant" },
+    { path: "higher_bidder" },
+  ];
+  await Mazad.populate(Mazads, opts);
+
   res.status(200).json({
     success: true,
     data: Mazads,
@@ -108,7 +118,9 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads/:id
 // @access    public
 exports.getMazad = asyncHandler(async (req, res, next) => {
-  const mazad = await Mazad.findById(req.params.id);
+  const mazad = await Mazad.findById(req.params.id)
+    .populate("interested_subscribers", "name photo")
+    .populate("subscribers", "name photo")
 
   res.status(200).json({
     success: true,
@@ -219,11 +231,25 @@ exports.joinMazad = asyncHandler(async (req, res, next) => {
   }
 
   let user = await User.findById(req.user.id);
+  if (user.myMazads.find((id) => id == String(mazad._id))) {
+    return next(
+      new ErrorResponse("You are already subscribed to this mazad", 400)
+    );
+  }
+
   user.myMazads.push(mazad._id);
   await user.save();
 
   mazad.subscribers.push(user._id);
   await mazad.save();
+
+  //   await mazad
+  //     .populate("interested_subscribers")
+  //     .populate("subscribers")
+  //     .populate("merchant")
+  //     .populate("winner")
+  //     .populate("higher_bidder")
+  //     .execPopulate();
 
   res.status(200).json({
     success: true,
