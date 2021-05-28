@@ -139,10 +139,10 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/v1/Mazad/:id
 // @access    private [admin-merchant]
 exports.deleteMazad = asyncHandler(async (req, res, next) => {
-  const mazad = await Mazad.find({ merchant: req.user._id });
+  const mazad = await Mazad.findById(req.params.id);
 
   if (
-    req.use.role == "merchant" &&
+    req.user.role == "merchant" &&
     req.user._id.toString() !== mazad.merchant.toString()
   ) {
     return next(
