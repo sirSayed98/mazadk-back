@@ -137,7 +137,16 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
   const mazad = await Mazad.create(req.body);
 
   schedule.scheduleJob(end_time, async function () {
-    mazad.finished = true;
+    let finished_mazad = await Mazad.findById(mazad._id);
+    finished_mazad.finished = true;
+
+    if (finished_mazad.higher_bidder !== undefined) {
+      const user = await User.findById(mazad.higher_bidder);
+      finished_mazad.winner = finished_mazad.higher_bidder;
+      user.wonMazads.push(finished_mazad._id);
+      await user.save();
+    }
+
     await mazad.save();
   });
 
