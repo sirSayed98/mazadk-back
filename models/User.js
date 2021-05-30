@@ -3,55 +3,67 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please add a name"],
+const UserSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Please add a name"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please add an email"],
+      unique: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please add a valid email",
+      ],
+    },
+    role: {
+      type: String,
+      enum: ["user", "merchant", "admin"],
+      default: "user",
+    },
+    password: {
+      type: String,
+      required: [true, "Please add a password"],
+      minlength: 8,
+      select: false,
+    },
+    address: {
+      type: String,
+      default: " default address",
+    },
+    phone: {
+      type: String,
+      maxlength: [11, "Phone number can not be longer than 11 characters"],
+      unique: true,
+    },
+    myMazads: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }],
+    },
+    wonMazads: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }],
+    },
+    interested_mazads: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }],
+    },
+    photo: {
+      type: String,
+      default: "/uploads/user/default.png",
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    passwordChangedAt: Date,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  email: {
-    type: String,
-    required: [true, "Please add an email"],
-    unique: true,
-    match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      "Please add a valid email",
-    ],
-  },
-  role: {
-    type: String,
-    enum: ["user", "merchant", "admin"],
-    default: "user",
-  },
-  password: {
-    type: String,
-    required: [true, "Please add a password"],
-    minlength: 8,
-    select: false,
-  },
-  address: {
-    type: String,
-    default: " default address",
-  },
-  phone: {
-    type: String,
-    maxlength: [11, "Phone number can not be longer than 11 characters"],
-    unique: true,
-  },
-  myMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
-  wonMazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
-  interested_mazads: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Mazad" }] },
-  photo: {
-    type: String,
-    default: "/uploads/user/default.png",
-  },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  passwordChangedAt: Date,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 // Encrypt password using bcrypt
 UserSchema.pre("save", async function (next) {
