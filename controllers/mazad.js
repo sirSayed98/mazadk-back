@@ -318,7 +318,8 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
   } else {
     res.status(406).json({
       success: false,
-      Message: "there is a new value to bid",
+      data: mazad,
+      Message: "Mazad has reached that value bid again!",
     });
   }
 });

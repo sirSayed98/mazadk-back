@@ -2,6 +2,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 const User = require("../models/User");
 const Request = require("../models/Request");
+const Mazad = require("../models/Mazad");
 const { request } = require("express");
 
 // @desc      Get Statistics
@@ -10,11 +11,13 @@ const { request } = require("express");
 exports.getStatist = asyncHandler(async (req, res, next) => {
   const users = await User.find();
   const requests = await Request.find();
+  const Mazads = await Mazad.find();
 
   var statis = {};
   statis.total_users = users.length;
   statis.total_requests = requests.length;
   statis.total_traffic = statis.total_users + statis.total_requests;
+  statis.total_Mazads = Mazads.length;
 
   statis.merchants = 0;
   statis.users = 0;
