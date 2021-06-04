@@ -19,8 +19,47 @@ exports.register = asyncHandler(async (req, res, next) => {
     );
   //create user
   const user = await User.create(req.body);
+  const verifyToken = user.getVerifiedToken();
+  const message = `https://mazadk.vercel.app/verify/${verifyToken}`;
 
-  //const url = `${req.protocol}://${req.get('host')}/profile`;
+  // save hashed token and expire date
+  await user.save({ validateBeforeSave: false });
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Confirm Your Email",
+      message,
+    });
+    res
+      .status(200)
+      .json({ success: true, msg: "Email sent"});
+  } catch (error) {
+    return next(new ErrorResponse("Email could not be sent", 500));
+  }
+});
+
+//@desc       Register User
+//@route      GET/api/v1/auth/verify/:token
+//@access     public
+exports.verifyRegisterToken = asyncHandler(async (req, res, next) => {
+  // Get hashed token
+
+  const verifiedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    verifiedToken,
+  });
+  if (!user) {
+    return next(new ErrorResponse("Invalid token", 400));
+  }
+
+  user.verifiedToken = undefined;
+  user.verified = true;
+  await user.save();
 
   sendTokenResponse(user, 200, req, res);
 });

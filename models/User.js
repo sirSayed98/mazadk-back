@@ -51,6 +51,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "/uploads/user/default.png",
     },
+    verified:{
+      type:Boolean,
+      default:false
+    },
+    verifiedToken:String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     passwordChangedAt: Date,
@@ -103,6 +108,21 @@ UserSchema.methods.getResetPasswordToken = function () {
 
   return resetToken;
 };
+// Generate and hash verified token
+UserSchema.methods.getVerifiedToken = function () {
+  // Generate token
+  const verifiedToken = crypto.randomBytes(32).toString("hex");
+
+  // Hash token and set to resetPasswordToken field
+  this.verifiedToken = crypto
+    .createHash("sha256")
+    .update(verifiedToken)
+    .digest("hex");
+
+
+  return verifiedToken;
+};
+
 
 // prevent use old token after changing password
 UserSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
