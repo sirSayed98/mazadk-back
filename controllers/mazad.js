@@ -86,7 +86,7 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
 // @access    public
 exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+  let mazads = await Mazad.find({ start_time: { $gt: currentTime } });
 
   res.status(200).json({
     success: true,
@@ -99,7 +99,7 @@ exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gte: currentTime } });
+  let mazads = await Mazad.find({ start_time: { $gt: currentTime } });
 
   let filteredMazads = mazads.filter((el) => {
     return (
@@ -137,17 +137,18 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
   const mazad = await Mazad.create(req.body);
 
   schedule.scheduleJob(end_time, async function () {
+
     let finished_mazad = await Mazad.findById(mazad._id);
     finished_mazad.finished = true;
 
     if (finished_mazad.higher_bidder !== undefined) {
-      const user = await User.findById(mazad.higher_bidder);
+      const user = await User.findById(finished_mazad.higher_bidder);
       finished_mazad.winner = finished_mazad.higher_bidder;
       user.wonMazads.push(finished_mazad._id);
       await user.save();
     }
 
-    await mazad.save();
+    await finished_mazad.save();
   });
 
   res.status(201).json({
