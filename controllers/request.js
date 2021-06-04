@@ -45,12 +45,9 @@ exports.createRequest = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/requests/:id
 // @access    Private/Admin
 exports.dealWithRequest = asyncHandler(async (req, res, next) => {
-
   const request = await Request.findById(req.params.id);
-  if (request.checked===true){
-    return next(
-      new ErrorResponse(`request has been accepted before`, 400)
-    );
+  if (request.checked === true) {
+    return next(new ErrorResponse(`request has been accepted before`, 400));
   }
 
   request.accepted = req.body.accepted;
@@ -69,37 +66,33 @@ exports.dealWithRequest = asyncHandler(async (req, res, next) => {
       role: "merchant",
       password: password,
       phone: request.phone,
+      verified: true,
     };
-     await User.create(data);
+    await User.create(data);
 
-     const message=`Your request has been approved \n your email is: 
+    const message = `Your request has been approved \n your email is: 
      ${data.email} \n password: ${data.password} \n you can change it. `;
-     await sendEmail({
+    await sendEmail({
       email: request.email,
       subject: "Congratulations !",
       message,
     });
     res.status(200).json({
       success: true,
-      data: request
+      data: request,
     });
-
-  }
-  else{
-    const message=`Your request has been rejected you can communicate with the platform owner. `;
-     await sendEmail({
+  } else {
+    const message = `Your request has been rejected you can communicate with the platform owner. `;
+    await sendEmail({
       email: request.email,
       subject: "Rejected !",
       message,
     });
     res.status(200).json({
       success: true,
-      data: request
+      data: request,
     });
   }
-
-  
- 
 });
 
 // @desc      Delete Request

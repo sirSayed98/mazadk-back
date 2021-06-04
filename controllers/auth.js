@@ -31,9 +31,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       subject: "Confirm Your Email",
       message,
     });
-    res
-      .status(200)
-      .json({ success: true, msg: "Email sent"});
+    res.status(200).json({ success: true, msg: "Email sent" });
   } catch (error) {
     return next(new ErrorResponse("Email could not be sent", 500));
   }
@@ -86,6 +84,10 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     return next(new ErrorResponse("Invalid credentials", 401));
+  }
+
+  if (user.verified == false) {
+    return next(new ErrorResponse("Your account has not been verified", 401));
   }
 
   // Check if password matches
