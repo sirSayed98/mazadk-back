@@ -12,6 +12,7 @@ const {
   getUpComingMazads,
   getUpComingMazadsByUser,
   interestMazad,
+  contactWinners
 } = require("../controllers/mazad");
 
 const router = express.Router();
@@ -35,6 +36,10 @@ router.route("/current_mazads").get(getCurrentMazads);
 
 router.route("/upcoming_mazads_user").get(protect, getUpComingMazadsByUser);
 router.route("/upcoming_mazads").get(getUpComingMazads);
+
+router
+  .route("/contact_winners")
+  .get(protect, authorize("merchant"), contactWinners);
 
 router
   .route("/:id")

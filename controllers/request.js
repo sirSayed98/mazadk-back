@@ -5,6 +5,7 @@ const User = require("../models/User");
 const generator = require("generate-password");
 const sendEmail = require("./../utils/sendEmail");
 
+
 // @desc      Get all Requests
 // @route     GET /api/v1/requests
 // @access    Private/Admin
@@ -33,6 +34,15 @@ exports.getRequest = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/requests
 // @access    Private/Admin
 exports.createRequest = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (user) {
+    return res.status(404).json({
+      success: false,
+      message: "email is registered before",
+    });
+  }
+
   const request = await Request.create(req.body);
 
   res.status(201).json({

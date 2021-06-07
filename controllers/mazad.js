@@ -55,6 +55,8 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let filtered = mazads.filter((el) => {
     return el.finished === false;
   });
+  console.log("______CurrentByUser_______");
+  console.log(filtered);
   res.status(200).json({
     success: true,
     data: filtered,
@@ -120,7 +122,14 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
 exports.getMazad = asyncHandler(async (req, res, next) => {
   const mazad = await Mazad.findById(req.params.id)
     .populate("interested_subscribers", "name photo")
-    .populate("subscribers", "name photo");
+    .populate("subscribers", "name photo")
+    .populate("higher_bidder", "name photo");
+
+  if (mazad.higher_bidder) {
+    mazad.subscribers = mazad.subscribers.filter((el) => {
+      return el._id.toString() !== mazad.higher_bidder._id.toString();
+    });
+  }
 
   res.status(200).json({
     success: true,
@@ -136,9 +145,11 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
   req.body.current_price = start_price;
   const mazad = await Mazad.create(req.body);
 
+  console.log("_______Crete mazad______");
   schedule.scheduleJob(end_time, async function () {
-
+    console.log("_________finishd________-");
     let finished_mazad = await Mazad.findById(mazad._id);
+
     finished_mazad.finished = true;
 
     if (finished_mazad.higher_bidder !== undefined) {
@@ -296,7 +307,7 @@ exports.interestMazad = asyncHandler(async (req, res, next) => {
 
 // @desc      Bid end point
 // @route     Post /api/v1/Mazad/bid/:id
-// @access    Private [user - admin]
+// @access    Private [user]
 exports.bidNow = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
 
@@ -321,10 +332,8 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
     mazad.current_price = newVal;
     mazad.higher_bidder = req.user.id;
     await mazad.save();
-    res.status(200).json({
-      success: true,
-      data: mazad,
-    });
+
+    exports.getMazad(req, res, next);
   } else {
     res.status(406).json({
       success: false,
@@ -332,4 +341,26 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
       Message: "Mazad has reached that value bid again!",
     });
   }
+});
+
+// @desc      Bid end point
+// @route     get /api/v1/Mazad/contact_winners
+// @access    Private Merchant
+exports.contactWinners = asyncHandler(async (req, res, next) => {
+  let mazads = await Mazad.find({
+    finished: true,
+    merchant: req.user._id,
+  })
+    .sort({ end_time: -1 })
+    .populate("winner", "name phone email");
+
+  mazads = mazads.filter((el) => {
+    return el.winner;
+  });
+
+  res.status(200).json({
+    success: true,
+    count: mazads.length,
+    data: mazads,
+  });
 });

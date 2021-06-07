@@ -189,15 +189,15 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id)
     .populate(
       "myMazads",
-      "name start_time end_time start_price market_price expected_price current_price"
+      "name start_time end_time start_price market_price expected_price current_price photo"
     )
     .populate(
       "wonMazads",
-      "name start_time end_time start_price market_price expected_price current_price"
+      "name start_time end_time start_price market_price expected_price current_price photo"
     )
     .populate(
       "interested_mazads",
-      "name start_time end_time start_price market_price expected_price current_price"
+      "name start_time end_time start_price market_price expected_price current_price photo"
     );
 
   res.status(200).json({
