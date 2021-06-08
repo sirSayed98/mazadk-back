@@ -56,12 +56,10 @@ exports.getMazads = asyncHandler(async (req, res, next) => {
 // @access    Puplic
 exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({
-    start_time: { $lte: currentTime },
-  });
+  let mazads = await Mazad.find();
 
   let filtered = mazads.filter((el) => {
-    return el.finished === false;
+    return el.finished === false && el.start_time < currentTime;
   });
 
   res.status(200).json({
@@ -75,12 +73,13 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $lte: currentTime } });
+  let mazads = await Mazad.find();
 
   let filteredMazads = mazads.filter((el) => {
     return (
       req.user.myMazads.includes(el._id.toString()) === false &&
-      el.finished === false
+      el.finished === false &&
+      el.start_time < currentTime
     );
   });
 
@@ -95,7 +94,11 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
 // @access    public
 exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gt: currentTime } });
+  let mazads = await Mazad.find();
+
+  mazads = mazads.filter((el) => {
+    return el.start_time >= currentTime;
+  });
 
   res.status(200).json({
     success: true,
@@ -108,12 +111,13 @@ exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
   let currentTime = TimeNow();
-  let mazads = await Mazad.find({ start_time: { $gt: currentTime } });
+  let mazads = await Mazad.find();
 
   let filteredMazads = mazads.filter((el) => {
     return (
       req.user.interested_mazads.includes(el._id.toString()) === false &&
-      el.finished === false
+      el.finished === false &&
+      el.start_time >= currentTime
     );
   });
 
