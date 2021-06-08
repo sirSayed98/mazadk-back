@@ -7,13 +7,12 @@ const schedule = require("node-schedule");
 var Mutex = require("async-mutex").Mutex;
 const mutex = new Mutex();
 
-
-
+/*
 exports.configuration = (socket, io) => {
   Socket = socket;
   io = io;
 };
-
+*/
 // @desc      Get all Mazads
 // @route     GET /api/v1/mazads
 // @access    public
@@ -128,7 +127,15 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/mazads/:id
 // @access    public
 exports.getMazad = asyncHandler(async (req, res, next) => {
-  const mazad = await Mazad.findById(req.params.id)
+  const mazad = await getMazadPopulated(req.params.id);
+  res.status(200).json({
+    success: true,
+    data: mazad,
+  });
+});
+
+const getMazadPopulated = async (id) => {
+  const mazad = await Mazad.findById(id)
     .populate("interested_subscribers", "name photo")
     .populate("subscribers", "name photo")
     .populate("higher_bidder", "name photo");
@@ -139,11 +146,8 @@ exports.getMazad = asyncHandler(async (req, res, next) => {
     });
   }
 
-  res.status(200).json({
-    success: true,
-    data: mazad,
-  });
-});
+  return mazad;
+};
 
 // @desc      Get single mazad
 // @route     GET /api/v1/mazads
@@ -158,16 +162,18 @@ exports.createMazad = asyncHandler(async (req, res, next) => {
     console.log("_________finishd________-");
     let finished_mazad = await Mazad.findById(mazad._id);
 
-    finished_mazad.finished = true;
-
-    if (finished_mazad.higher_bidder !== undefined) {
-      const user = await User.findById(finished_mazad.higher_bidder);
-      finished_mazad.winner = finished_mazad.higher_bidder;
-      user.wonMazads.push(finished_mazad._id);
-      await user.save();
+    if (finished_mazad) {
+      finished_mazad.finished = true;
+      if (finished_mazad.higher_bidder !== undefined) {
+        const user = await User.findById(finished_mazad.higher_bidder);
+        finished_mazad.winner = finished_mazad.higher_bidder;
+        user.wonMazads.push(finished_mazad._id);
+        await user.save();
+      }
+      await finished_mazad.save();
+    } else {
+      console.log("__________________DELETED______________");
     }
-
-    await finished_mazad.save();
   });
 
   res.status(201).json({
@@ -350,12 +356,19 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
         mazad.current_price = newVal;
         mazad.higher_bidder = req.user.id;
         await mazad.save();
-        exports.getMazad(req, res, next);
+        getMazadPopulated(req.params.id).then((mazad) => {
+          res.status(200).json({
+            success: true,
+            data: mazad,
+          });
+        });
       } else {
-        res.status(406).json({
-          success: false,
-          data: mazad,
-          Message: "Mazad has reached that value bid again!",
+        getMazadPopulated(req.params.id).then((mazad) => {
+          res.status(406).json({
+            success: false,
+            data: mazad,
+            Message: "Mazad has reached that value bid again!",
+          });
         });
       }
     })
