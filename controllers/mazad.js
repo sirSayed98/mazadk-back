@@ -59,7 +59,7 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let mazads = await Mazad.find();
 
   let filtered = mazads.filter((el) => {
-    return el.finished === false && el.start_time < currentTime;
+    return el.finished === false && el.start_time <= currentTime;
   });
 
   res.status(200).json({
@@ -79,7 +79,7 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
     return (
       req.user.myMazads.includes(el._id.toString()) === false &&
       el.finished === false &&
-      el.start_time < currentTime
+      el.start_time <= currentTime
     );
   });
 
@@ -97,7 +97,7 @@ exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
   let mazads = await Mazad.find();
 
   mazads = mazads.filter((el) => {
-    return el.start_time >= currentTime;
+    return el.start_time > currentTime;
   });
 
   res.status(200).json({
@@ -117,7 +117,7 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
     return (
       req.user.interested_mazads.includes(el._id.toString()) === false &&
       el.finished === false &&
-      el.start_time >= currentTime
+      el.start_time > currentTime
     );
   });
 
