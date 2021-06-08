@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/error");
 const connectDB = require("./config/db");
 
+//
+
 //security
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
@@ -39,6 +41,7 @@ app.use(cookieParser());
 
 //"_____________________________________________________SECURITY_____________________________"//
 // Sanitize data
+
 app.use(mongoSanitize());
 
 // Set security headers
@@ -59,7 +62,6 @@ app.use(hpp());
 
 // Enable CORS
 app.use(cors());
-
 
 //"___________________________________________END___SECURITY_____________________________"//
 
@@ -91,6 +93,21 @@ const server = app.listen(
   PORT,
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET"],
+  },
+});
+
+const { configuration } = require("./controllers/mazad");
+
+const onConnection = (socket) => {
+  configuration(socket, io);
+};
+
+io.on("connection", onConnection);
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err, promise) => {

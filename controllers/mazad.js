@@ -4,6 +4,15 @@ const Mazad = require("../models/Mazad");
 const User = require("../models/User");
 const TimeNow = require("../utils/GetCurrentTime");
 const schedule = require("node-schedule");
+var Mutex = require("async-mutex").Mutex;
+const mutex = new Mutex();
+
+
+
+exports.configuration = (socket, io) => {
+  Socket = socket;
+  io = io;
+};
 
 // @desc      Get all Mazads
 // @route     GET /api/v1/mazads
@@ -55,8 +64,7 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let filtered = mazads.filter((el) => {
     return el.finished === false;
   });
-  console.log("______CurrentByUser_______");
-  console.log(filtered);
+
   res.status(200).json({
     success: true,
     data: filtered,
@@ -309,38 +317,51 @@ exports.interestMazad = asyncHandler(async (req, res, next) => {
 // @route     Post /api/v1/Mazad/bid/:id
 // @access    Private [user]
 exports.bidNow = asyncHandler(async (req, res, next) => {
-  let currentTime = TimeNow();
-
-  let mazad = await Mazad.findById(req.params.id);
-  if (!mazad) {
-    return next(new ErrorResponse("This mazad doesn't exist.", 404));
-  }
-
-  if (!mazad.subscribers.find((id) => id == req.user.id)) {
-    return next(new ErrorResponse("you are not subcribed to this mazad."));
-  }
-
-  if (!(mazad.start_time < currentTime && mazad.end_time > currentTime)) {
-    return next(
-      new ErrorResponse(`This mazad is not available currently`, 400)
-    );
-  }
-
-  const { newVal } = req.body;
-
-  if (mazad.current_price < newVal) {
-    mazad.current_price = newVal;
-    mazad.higher_bidder = req.user.id;
-    await mazad.save();
-
-    exports.getMazad(req, res, next);
-  } else {
-    res.status(406).json({
+  if (mutex.isLocked()) {
+    return res.status(500).json({
       success: false,
-      data: mazad,
-      Message: "Mazad has reached that value bid again!",
+      message: "Another Bidder is bidding now",
     });
   }
+  mutex
+    .runExclusive(async function () {
+      console.log(`[Bidding] acquire lock`);
+
+      let currentTime = TimeNow();
+
+      let mazad = await Mazad.findById(req.params.id);
+      if (!mazad) {
+        return next(new ErrorResponse("This mazad doesn't exist.", 404));
+      }
+
+      if (!mazad.subscribers.find((id) => id == req.user.id)) {
+        return next(new ErrorResponse("you are not subcribed to this mazad."));
+      }
+
+      if (!(mazad.start_time < currentTime && mazad.end_time > currentTime)) {
+        return next(
+          new ErrorResponse(`This mazad is not available currently`, 400)
+        );
+      }
+
+      const { newVal } = req.body;
+
+      if (mazad.current_price < newVal) {
+        mazad.current_price = newVal;
+        mazad.higher_bidder = req.user.id;
+        await mazad.save();
+        exports.getMazad(req, res, next);
+      } else {
+        res.status(406).json({
+          success: false,
+          data: mazad,
+          Message: "Mazad has reached that value bid again!",
+        });
+      }
+    })
+    .then(function (result) {
+      console.log(`[Bidding] release lock`);
+    });
 });
 
 // @desc      Bid end point
