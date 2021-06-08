@@ -76,11 +76,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const dataPopulated =
     "name photo start_time end_time start_price market_price expected_price current_price";
   // Check for user
-  const user = await User.findOne({ email })
-    .select("+password")
-    .populate("myMazads", dataPopulated)
-    .populate("wonMazads", dataPopulated)
-    .populate("interested_mazads", dataPopulated);
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
     return next(new ErrorResponse("Invalid credentials", 401));

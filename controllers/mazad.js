@@ -59,8 +59,10 @@ exports.getCurrentMazads = asyncHandler(async (req, res, next) => {
   let mazads = await Mazad.find();
 
   let filtered = mazads.filter((el) => {
-    return el.finished === false && el.start_time <= currentTime;
+    return el.end_time > currentTime && el.start_time <= currentTime;
   });
+
+  filtered.sort((a, b) => (a.end_time > b.end_time ? 1 : -1));
 
   res.status(200).json({
     success: true,
@@ -78,10 +80,12 @@ exports.getCurrentMazadsByUser = asyncHandler(async (req, res, next) => {
   let filteredMazads = mazads.filter((el) => {
     return (
       req.user.myMazads.includes(el._id.toString()) === false &&
-      el.finished === false &&
+      el.end_time > currentTime &&
       el.start_time <= currentTime
     );
   });
+
+  filteredMazads.sort((a, b) => (a.end_time > b.end_time ? 1 : -1));
 
   res.status(200).json({
     success: true,
@@ -97,8 +101,10 @@ exports.getUpComingMazads = asyncHandler(async (req, res, next) => {
   let mazads = await Mazad.find();
 
   mazads = mazads.filter((el) => {
-    return el.start_time > currentTime;
+    return el.start_time > currentTime && el.end_time > currentTime;
   });
+
+  mazads.sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
 
   res.status(200).json({
     success: true,
@@ -116,10 +122,12 @@ exports.getUpComingMazadsByUser = asyncHandler(async (req, res, next) => {
   let filteredMazads = mazads.filter((el) => {
     return (
       req.user.interested_mazads.includes(el._id.toString()) === false &&
-      el.finished === false &&
+      el.end_time > currentTime &&
       el.start_time > currentTime
     );
   });
+
+  filteredMazads.sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
 
   res.status(200).json({
     success: true,
@@ -348,7 +356,9 @@ exports.bidNow = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse("you are not subcribed to this mazad."));
       }
 
-      if (!(mazad.start_time < currentTime && mazad.end_time > currentTime)) {
+      console.log(mazad.end_time);
+      console.log(currentTime);
+      if (mazad.end_time < currentTime) {
         return next(
           new ErrorResponse(`This mazad is not available currently`, 400)
         );
