@@ -5,12 +5,29 @@
 
 
 ## Features
-- Login
-- Register
-- CRUD Admin 
-- Send Email
-- Forget Password
-- Reset Password
+
+- [x] Login
+- [x] Register (User-Merchant)
+- [x] Forget Password
+- [x] Reset Password
+- [x] Email Confirmation
+- [x] Upload Image
+- [x] Display Auctions
+- [x] Display Users
+- [x] Create/Edit/Delete Mazad
+- [x] Bidding
+- [x] Make Interested Auction List
+- [x] Display Platform Statistics
+- [x] Display User (winning - subscribed - Interested )
+- [x] Display User (winning - subscribed - Interested ) List
+- [x] Approve Or Reject Merchant Request
+- [x] Display Platform Statistics
+
+
+## Upcoming Features
+- [ ] Socket  Using 
+- [ ] Payment System 
+- [ ] Premium (Users - Merchants) 
 
 
 
@@ -54,7 +71,7 @@ npm install
 npm run server
 
 ```
-## Live API
+## Life API
 https://mmazadk.herokuapp.com
 
 
